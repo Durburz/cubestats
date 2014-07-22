@@ -1,7 +1,7 @@
 # cubestats config
 
-dbuser: *user*
-dbpw: *password*
+dbuser: user
+dbpw: password
 dbport: 3306
 db: cubestats
 dbhost: localhost

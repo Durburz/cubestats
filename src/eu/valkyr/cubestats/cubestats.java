@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public class cubestats extends JavaPlugin implements Listener {
 	
@@ -18,18 +19,18 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void onEnable() {
 		sql = new MySQL(Logger.getLogger("Minecraft"), 
 				"[cubestats]",
-	            "localhost", 
-	            3306, 
-	            "cubestats", 
-	            "mc", 
-	            "Z0mbi3");
+	            this.getConfig().getString("dbhost"), 
+	            this.getConfig().getInt("dbport"), 
+	            this.getConfig().getString("db"), 
+	            this.getConfig().getString("dbuser"), 
+	            this.getConfig().getString("dbpw"));
 		if (sql.open()) {
 			this.getLogger().info("cubestats got db connection...");
 			this.getLogger().info("cubestats is now tracking!");
 			Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 			    public void run() {
 			        writeToDB();
-			   }},0,200);
+			   }},0,this.getConfig().getInt("interval"));
 		}
 		else {
 			this.getLogger().info("[ERROR]cubestats got no db connection... will not work");

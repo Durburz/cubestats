@@ -3,6 +3,7 @@ package eu.valkyr.cubestats;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -61,7 +63,7 @@ public class cubestats extends JavaPlugin implements Listener {
     		}
 			if(sql.isTable("kills") == false){
     			try {
-					sql.insert("CREATE TABLE kills (UUID VARCHAR(36), time INT, enemy VARCHAR(36));");
+					sql.insert("CREATE TABLE kills (killerUUID VARCHAR(36), time INT, victimUUID VARCHAR(36));");
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -130,19 +132,22 @@ public class cubestats extends JavaPlugin implements Listener {
 		addSmelt(player.getUniqueId().toString(),itemType.toString(), itemAmount);
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void PlayerDeathEvent(Player player, List<ItemStack> drops, int droppedExp, String deathMessage) {
+		addKill(player.getKiller().getUniqueId().toString(),player.getUniqueId().toString());
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void EntityDeathEvent(LivingEntity entity, List<ItemStack> drops) {
+		addKill(entity.getKiller().getUniqueId().toString(), entity.getUniqueId().toString());
+	}
+	
 	public void writeToDB() {
 		
 		session2db();
 		enchant2db();
 		craft2db();
 		smelt2db();
-	}
-	
-	public void updateTimings() {
-		
-		for(int i=0; i<sessions.size(); i++) {
-			sessions.get(i)[2] = getTime();
-		}
 	}
 	
 	synchronized public void updateTimingsAsynchronous() {
@@ -186,8 +191,13 @@ public class cubestats extends JavaPlugin implements Listener {
 		enchants.add(enchant);
 	}
 	
-	public void addKill(String id) {
-
+	synchronized public void addKill(String killerid, String victimid) {
+		Object[] kill = new Object[3];
+		
+		kill[0] = killerid;
+		kill[1] = victimid;
+		kill[2] = getTime();
+		kills.add(kill);
 	}
 	
 	synchronized public void addCraft(String id, String item, int count) {
@@ -281,6 +291,23 @@ public class cubestats extends JavaPlugin implements Listener {
 		}
 	}
 	
+	public void kill2db() {
+		
+		for(int i=0; i < crafts.size(); i++) {
+
+			try {
+				sql.insert("INSERT INTO kills (killerUUID,time,victimUUID) VALUES ('"+kills.get(i)[0]+"','"+kills.get(i)[2]+"','"+kills.get(i)[1]+"');");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			synchronized (kills){
+				kills.remove(i);
+			}
+		}
+	}
+	
 	public void craft2db() {
 		
 		int pre = 0;
@@ -319,7 +346,7 @@ public class cubestats extends JavaPlugin implements Listener {
 		}
 	}
 	
-public void smelt2db() {
+	public void smelt2db() {
 		
 		int pre = 0;
 		

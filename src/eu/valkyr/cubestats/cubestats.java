@@ -3,29 +3,21 @@ package eu.valkyr.cubestats;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import lib.PatPeter.SQLibrary.MySQL;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.inventory.BrewerInventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -99,6 +91,7 @@ public class cubestats extends JavaPlugin implements Listener {
 		}
 		
 		this.saveDefaultConfig();
+		getServer().getPluginManager().registerEvents(this, this);
 		addSession(Bukkit.getServerName());
 		this.getLogger().info("cubestats is now tracking!");
 	}
@@ -112,34 +105,47 @@ public class cubestats extends JavaPlugin implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onLogin(PlayerLoginEvent event) {
+	public void onLogin(PlayerLoginEvent event)  {
 		
 		addSession(event.getPlayer().getUniqueId().toString());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void EnchantItemEvent(Player enchanter, InventoryView view, Block table, ItemStack item, int level, Map<Enchantment,Integer> enchants, int i) {
-		addEnchant(enchanter.getUniqueId().toString(), item.getType().toString());
+	public void onLeave(PlayerQuitEvent event) {
+		
+		this.getLogger().info(event.getPlayer().getUniqueId().toString());
+		session2db();
+		delSession(event.getPlayer().getUniqueId().toString());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void CraftItemEvent(Recipe recipe, InventoryView what, InventoryType.SlotType type, int slot, ClickType click, InventoryAction action) {
-		addCraft(what.getPlayer().getUniqueId().toString(),recipe.getResult().toString(), what.getItem(slot).getAmount());
+	public void onEnchant(EnchantItemEvent event) {
+		
+		addEnchant(event.getEnchanter().getUniqueId().toString(), event.getItem().getType().toString());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void FurnaceExtractEvent(Player player, Block block, Material itemType, int itemAmount, int exp)   {
-		addSmelt(player.getUniqueId().toString(),itemType.toString(), itemAmount);
+	public void onCraft(CraftItemEvent event) {
+		
+		addCraft(event.getWhoClicked().getUniqueId().toString(), event.getResult().toString(), event.getCurrentItem().getAmount());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void PlayerDeathEvent(Player player, List<ItemStack> drops, int droppedExp, String deathMessage) {
-		addKill(player.getKiller().getUniqueId().toString(),player.getUniqueId().toString());
+	public void onSmelt(FurnaceExtractEvent event)   {
+		
+		addSmelt(event.getPlayer().getUniqueId().toString(), event.getItemType().toString(), event.getItemAmount());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void EntityDeathEvent(LivingEntity entity, List<ItemStack> drops) {
-		addKill(entity.getKiller().getUniqueId().toString(), entity.getUniqueId().toString());
+	public void onDeath(PlayerDeathEvent event) {
+		
+		addKill(event.getEntity().getKiller().getUniqueId().toString(),event.getEntity().getUniqueId().toString());
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onKill(EntityDeathEvent event) {
+		
+		addKill(event.getEntity().getKiller().getUniqueId().toString(), event.getEntity().getUniqueId().toString());
 	}
 	
 	public void writeToDB() {
@@ -181,6 +187,16 @@ public class cubestats extends JavaPlugin implements Listener {
 		session[2] = getTime();
 		sessions.add(session);
 	}
+	
+	synchronized public void delSession(String id) {
+		
+		for(int i=0; i<sessions.size(); i++) {
+			if(sessions.get(i)[0].equals(id)) {
+				sessions.remove(i);
+				break;
+			}
+		}
+	} 	
 	
 	synchronized public void addEnchant(String id, String item) {
 		

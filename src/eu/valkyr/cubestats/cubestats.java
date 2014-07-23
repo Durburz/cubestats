@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import lib.PatPeter.SQLibrary.MySQL;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -145,7 +146,9 @@ public class cubestats extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onKill(EntityDeathEvent event) {
 		
-		addKill(event.getEntity().getKiller().getUniqueId().toString(), event.getEntity().getUniqueId().toString());
+		if(event.getEntity().getKiller() instanceof Player) {
+			addKill(event.getEntity().getKiller().getUniqueId().toString(), event.getEntity().getUniqueId().toString());
+		}
 	}
 	
 	public void writeToDB() {

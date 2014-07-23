@@ -133,6 +133,9 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void writeToDB() {
 		
 		session2db();
+		enchant2db();
+		craft2db();
+		smelt2db();
 	}
 	
 	public void updateTimings() {
@@ -266,11 +269,90 @@ public class cubestats extends JavaPlugin implements Listener {
 			}
 			else {
 				try {
-					sql.insert("INSERT INTO session (UUID,count,item) VALUES ('"+enchants.get(i)[0]+"','1','"+enchants.get(i)[1]+"');");
+					sql.insert("INSERT INTO enchants (UUID,count,item) VALUES ('"+enchants.get(i)[0]+"','1','"+enchants.get(i)[1]+"');");
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
+			synchronized (enchants){
+				enchants.remove(i);
+			}
+		}
+	}
+	
+	public void craft2db() {
+		
+		int pre = 0;
+		
+		for(int i=0; i < crafts.size(); i++) {
+			try {
+				ResultSet re;
+				re = sql.query("SELECT count FROM crafts WHERE UUID='"+crafts.get(i)[0]+"' AND item='"+crafts.get(i)[1]+"';");
+				while(re.next()) {
+					pre = re.getInt("count");
+				}
+				re.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if(pre != 0) {
+				try {
+					sql.insert("UPDATE crafts SET count='"+(pre + (int)crafts.get(i)[2])+"' WHERE UUID='"+crafts.get(i)[0]+"' AND item='"+crafts.get(i)[1]+"';");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				try {
+					sql.insert("INSERT INTO crafts (UUID,count,item) VALUES ('"+enchants.get(i)[0]+"','1','"+enchants.get(i)[1]+"');");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			synchronized (crafts){
+				crafts.remove(i);
+			}
+		}
+	}
+	
+public void smelt2db() {
+		
+		int pre = 0;
+		
+		for(int i=0; i < smelts.size(); i++) {
+			try {
+				ResultSet re;
+				re = sql.query("SELECT count FROM smelts WHERE UUID='"+smelts.get(i)[0]+"' AND item='"+smelts.get(i)[1]+"';");
+				while(re.next()) {
+					pre = re.getInt("count");
+				}
+				re.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if(pre != 0) {
+				try {
+					sql.insert("UPDATE smelts SET count='"+(pre + (int)smelts.get(i)[2])+"' WHERE UUID='"+smelts.get(i)[0]+"' AND item='"+smelts.get(i)[1]+"';");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				try {
+					sql.insert("INSERT INTO smelts (UUID,count,item) VALUES ('"+smelts.get(i)[0]+"','1','"+smelts.get(i)[1]+"');");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			synchronized (smelts){
+				smelts.remove(i);
 			}
 		}
 	}

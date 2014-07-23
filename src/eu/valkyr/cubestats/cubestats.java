@@ -1,5 +1,7 @@
 package eu.valkyr.cubestats;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -40,9 +42,37 @@ public class cubestats extends JavaPlugin implements Listener {
 	            this.getConfig().getString("db"), 
 	            this.getConfig().getString("dbuser"), 
 	            this.getConfig().getString("dbpw"));
+		
 		if (sql.open()) {
 			this.getLogger().info("cubestats got db connection...");
-			this.getLogger().info("cubestats is now tracking!");
+			if(sql.isTable("session") == false){
+    			try {
+					sql.insert("CREATE TABLE session (sessid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), start INT, end INT);");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+    		}
+			if(sql.isTable("kills") == false){
+    			try {
+					sql.insert("CREATE TABLE kills (UUID VARCHAR(36), time INT, enemy VARCHAR(36));");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+    		}
+			if(sql.isTable("blocks") == false){
+    			try {
+					sql.insert("CREATE TABLE blocks (UUID VARCHAR(36), count INT, block INT);");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+    		}
+			if(sql.isTable("enchants") == false){
+    			try {
+					sql.insert("CREATE TABLE enchants (UUID VARCHAR(36), time INT, item INT);");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+    		}
 			writer = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 			    public void run() {
 			    	update();
@@ -51,9 +81,10 @@ public class cubestats extends JavaPlugin implements Listener {
 		else {
 			this.getLogger().severe("cubestats got no db connection... will not work");
 		}
-		this.saveDefaultConfig();
 		
+		this.saveDefaultConfig();
 		addSession(Bukkit.getServerName());
+		this.getLogger().info("cubestats is now tracking!");
 	}
 	 
 	public void onDisable() {
@@ -68,7 +99,6 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void onLogin(PlayerLoginEvent event) {
 		
 		addSession(event.getPlayer().getUniqueId().toString());
-
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -77,7 +107,37 @@ public class cubestats extends JavaPlugin implements Listener {
 	}
 	
 	public void writeToDB() {
-
+		
+		for(int i=0; i < sessions.size(); i++) {
+			
+			if (sessions.get(i)[3] != null) {
+				try {
+					sql.insert("UPDATE session SET end='"+sessions.get(i)[2]+"' WHERE sessid='"+sessions.get(i)[3]+"';");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				try {
+					sql.insert("INSERT INTO session (UUID,start,end) VALUES ('"+sessions.get(i)[0]+"','"+sessions.get(i)[1]+"','"+sessions.get(i)[2]+"');");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ResultSet re;
+				try {
+					re = sql.query("SELECT sessid FROM session WHERE UUID='"+sessions.get(i)[0]+"' AND start='"+sessions.get(i)[1]+"';");
+					while(re.next()) {
+						sessions.get(i)[3] = re.getInt("sessid");
+					}
+					re.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	public void updateTimings() {
@@ -111,7 +171,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addSession(String id) {
 
-		Object[] session = new Object[3];
+		Object[] session = new Object[4];
 		
 		session[0] = id;
 		session[1] = getTime();

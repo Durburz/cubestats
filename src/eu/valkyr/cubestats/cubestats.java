@@ -33,6 +33,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	private ArrayList<Object[]> kills = new ArrayList<Object[]>();
 	private ArrayList<Object[]> crafts = new ArrayList<Object[]>();
 	private ArrayList<Object[]> smelts = new ArrayList<Object[]>();
+	private ArrayList<Object[]> fishes = new ArrayList<Object[]>();
 	
 	
 	public void onEnable() {
@@ -189,7 +190,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addSession(String id) {
 
-		Object[] session = new Object[4];
+		Object[] session = new Object[3];
 		
 		session[0] = id;
 		session[1] = getTime();
@@ -209,7 +210,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addEnchant(String id, String item) {
 		
-		Object[] enchant = new Object[3];
+		Object[] enchant = new Object[2];
 		
 		enchant[0] = id;
 		enchant[1] = item;
@@ -217,6 +218,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	}
 	
 	synchronized public void addKill(String killerid, String victimid) {
+		
 		Object[] kill = new Object[3];
 		
 		kill[0] = killerid;
@@ -227,7 +229,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addCraft(String id, String item, int count) {
 
-		Object[] craft = new Object[4];
+		Object[] craft = new Object[3];
 		
 		craft[0] = id;
 		craft[1] = item;
@@ -237,12 +239,21 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addSmelt(String id, String item, int count) {
 
-		Object[] smelt = new Object[4];
+		Object[] smelt = new Object[3];
 		
 		smelt[0] = id;
 		smelt[1] = item;
 		smelt[2] = count;
 		smelts.add(smelt);
+	}
+	
+	synchronized public void addFish(String id, String item) {
+
+		Object[] fish = new Object[2];
+		
+		fish[0] = id;
+		fish[1] = item;
+		fishes.add(fish);
 	}
 	
 	public void session2db() {
@@ -394,6 +405,10 @@ public class cubestats extends JavaPlugin implements Listener {
 				smelts.remove(i);
 			}
 		}
+	}
+	
+	public void fish2db() {
+		
 	}
 	
 }

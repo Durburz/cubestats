@@ -84,6 +84,13 @@ public class cubestats extends JavaPlugin implements Listener {
 					e.printStackTrace();
 				}
     		}
+			if(sql.isTable("fishes") == false){
+    			try {
+					sql.insert("CREATE TABLE fishes (UUID VARCHAR(36), count INT, item VARCHAR(20));");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+    		}
 			writer = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 			    public void run() {
 			    	update();
@@ -164,6 +171,7 @@ public class cubestats extends JavaPlugin implements Listener {
 		enchant2db();
 		craft2db();
 		smelt2db();
+		fish2db();
 	}
 	
 	synchronized public void updateTimingsAsynchronous() {
@@ -409,6 +417,37 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	public void fish2db() {
 		
+		int pre = 0;
+		
+		for(int i=0; i < fishes.size(); i++) {
+			try {
+				ResultSet re;
+				re = sql.query("SELECT count FROM fishes WHERE UUID='"+fishes.get(i)[0]+"' AND item='"+fishes.get(i)[1]+"';");
+				while(re.next()) {
+					pre = re.getInt("count");
+				}
+				re.close();
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
+			}
+			if(pre != 0) {
+				try {
+					sql.insert("UPDATE fishes SET count='"+(pre + (int)fishes.get(i)[2])+"' WHERE UUID='"+fishes.get(i)[0]+"' AND item='"+fishes.get(i)[1]+"';");
+				} catch (SQLException e) {
+					this.getLogger().severe(e.getMessage());
+				}
+			}
+			else {
+				try {
+					sql.insert("INSERT INTO fishes (UUID,count,item) VALUES ('"+fishes.get(i)[0]+"','1','"+fishes.get(i)[1]+"');");
+				} catch (SQLException e) {
+					this.getLogger().severe(e.getMessage());
+				}
+			}
+			synchronized (fishes){
+				fishes.remove(i);
+			}
+		}
 	}
 	
 }

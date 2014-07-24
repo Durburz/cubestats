@@ -123,7 +123,6 @@ public class cubestats extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent event) {
 		
-		this.getLogger().info(event.getPlayer().getUniqueId().toString());
 		session2db();
 		delSession(event.getPlayer().getUniqueId().toString());
 	}
@@ -198,7 +197,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	synchronized public void addSession(String id) {
 
-		Object[] session = new Object[3];
+		Object[] session = new Object[4];
 		
 		session[0] = id;
 		session[1] = getTime();

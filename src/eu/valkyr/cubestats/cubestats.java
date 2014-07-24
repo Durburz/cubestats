@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -151,6 +152,11 @@ public class cubestats extends JavaPlugin implements Listener {
 		}
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onFish(PlayerFishEvent event) {
+		
+	}
+	
 	public void writeToDB() {
 		
 		session2db();
@@ -246,16 +252,14 @@ public class cubestats extends JavaPlugin implements Listener {
 				try {
 					sql.insert("UPDATE session SET end='"+sessions.get(i)[2]+"' WHERE sessid='"+sessions.get(i)[3]+"';");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			else {
 				try {
 					sql.insert("INSERT INTO session (UUID,start,end) VALUES ('"+sessions.get(i)[0]+"','"+sessions.get(i)[1]+"','"+sessions.get(i)[2]+"');");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 				try {
 					ResultSet re;
@@ -264,9 +268,8 @@ public class cubestats extends JavaPlugin implements Listener {
 						sessions.get(i)[3] = re.getInt("sessid");
 					}
 					re.close();
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (SQLException e) {
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 		}
@@ -284,24 +287,21 @@ public class cubestats extends JavaPlugin implements Listener {
 					pre = re.getInt("count");
 				}
 				re.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
 			}
 			if(pre != 0) {
 				try {
 					sql.insert("UPDATE enchants SET count='"+(pre+1)+"' WHERE UUID='"+enchants.get(i)[0]+"' AND item='"+enchants.get(i)[1]+"';");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			else {
 				try {
 					sql.insert("INSERT INTO enchants (UUID,count,item) VALUES ('"+enchants.get(i)[0]+"','1','"+enchants.get(i)[1]+"');");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			synchronized (enchants){
@@ -317,8 +317,7 @@ public class cubestats extends JavaPlugin implements Listener {
 			try {
 				sql.insert("INSERT INTO kills (killerUUID,time,victimUUID) VALUES ('"+kills.get(i)[0]+"','"+kills.get(i)[2]+"','"+kills.get(i)[1]+"');");
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.getLogger().severe(e.getMessage());
 			}
 
 			synchronized (kills){
@@ -339,24 +338,21 @@ public class cubestats extends JavaPlugin implements Listener {
 					pre = re.getInt("count");
 				}
 				re.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
 			}
 			if(pre != 0) {
 				try {
 					sql.insert("UPDATE crafts SET count='"+(pre + (int)crafts.get(i)[2])+"' WHERE UUID='"+crafts.get(i)[0]+"' AND item='"+crafts.get(i)[1]+"';");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			else {
 				try {
 					sql.insert("INSERT INTO crafts (UUID,count,item) VALUES ('"+enchants.get(i)[0]+"','1','"+enchants.get(i)[1]+"');");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			synchronized (crafts){
@@ -377,24 +373,21 @@ public class cubestats extends JavaPlugin implements Listener {
 					pre = re.getInt("count");
 				}
 				re.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
 			}
 			if(pre != 0) {
 				try {
 					sql.insert("UPDATE smelts SET count='"+(pre + (int)smelts.get(i)[2])+"' WHERE UUID='"+smelts.get(i)[0]+"' AND item='"+smelts.get(i)[1]+"';");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			else {
 				try {
 					sql.insert("INSERT INTO smelts (UUID,count,item) VALUES ('"+smelts.get(i)[0]+"','1','"+smelts.get(i)[1]+"');");
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					this.getLogger().severe(e.getMessage());
 				}
 			}
 			synchronized (smelts){

@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import lib.PatPeter.SQLibrary.MySQL;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -131,32 +130,35 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void onEnchant(EnchantItemEvent event) {
 		
 		addEnchant(event.getEnchanter().getUniqueId().toString(), event.getItem().getType().toString());
+		enchant2db();
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onCraft(CraftItemEvent event) {
 		
-		addCraft(event.getWhoClicked().getUniqueId().toString(), event.getResult().toString(), event.getCurrentItem().getAmount());
+		//addCraft(event.getWhoClicked().getUniqueId().toString(), event.getCurrentItem().getType().toString(), event.getCurrentItem().getAmount());
+		//craft2db();
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSmelt(FurnaceExtractEvent event)   {
 		
 		addSmelt(event.getPlayer().getUniqueId().toString(), event.getItemType().toString(), event.getItemAmount());
+		smelt2db();
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onDeath(PlayerDeathEvent event) {
 		
-		addKill(event.getEntity().getKiller().getUniqueId().toString(),event.getEntity().getUniqueId().toString());
+		//addKill(event.getEntity().getKiller().getUniqueId().toString(),event.getEntity().getUniqueId().toString());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onKill(EntityDeathEvent event) {
 		
-		if(event.getEntity().getKiller() instanceof Player) {
-			addKill(event.getEntity().getKiller().getUniqueId().toString(), event.getEntity().getUniqueId().toString());
-		}
+		//if(event.getEntity().getKiller() instanceof Player) {
+		//	addKill(event.getEntity().getKiller().getUniqueId().toString(), event.getEntity().getUniqueId().toString());
+		//}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -167,10 +169,6 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void writeToDB() {
 		
 		session2db();
-		enchant2db();
-		craft2db();
-		smelt2db();
-		fish2db();
 	}
 	
 	synchronized public void updateTimingsAsynchronous() {
@@ -354,6 +352,7 @@ public class cubestats extends JavaPlugin implements Listener {
 				re = sql.query("SELECT count FROM crafts WHERE UUID='"+crafts.get(i)[0]+"' AND item='"+crafts.get(i)[1]+"';");
 				while(re.next()) {
 					pre = re.getInt("count");
+					this.getLogger().info("Pre: "+pre);
 				}
 				re.close();
 			} catch (SQLException e) {
@@ -362,6 +361,7 @@ public class cubestats extends JavaPlugin implements Listener {
 			if(pre != 0) {
 				try {
 					sql.insert("UPDATE crafts SET count='"+(pre + (int)crafts.get(i)[2])+"' WHERE UUID='"+crafts.get(i)[0]+"' AND item='"+crafts.get(i)[1]+"';");
+					this.getLogger().info("Update!");
 				} catch (SQLException e) {
 					this.getLogger().severe(e.getMessage());
 				}
@@ -389,6 +389,7 @@ public class cubestats extends JavaPlugin implements Listener {
 				re = sql.query("SELECT count FROM smelts WHERE UUID='"+smelts.get(i)[0]+"' AND item='"+smelts.get(i)[1]+"';");
 				while(re.next()) {
 					pre = re.getInt("count");
+					this.getLogger().info("Pre: "+pre);
 				}
 				re.close();
 			} catch (SQLException e) {
@@ -396,6 +397,7 @@ public class cubestats extends JavaPlugin implements Listener {
 			}
 			if(pre != 0) {
 				try {
+					this.getLogger().info("Update Smelt!");
 					sql.insert("UPDATE smelts SET count='"+(pre + (int)smelts.get(i)[2])+"' WHERE UUID='"+smelts.get(i)[0]+"' AND item='"+smelts.get(i)[1]+"';");
 				} catch (SQLException e) {
 					this.getLogger().severe(e.getMessage());

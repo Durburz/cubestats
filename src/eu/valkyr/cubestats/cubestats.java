@@ -85,7 +85,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent event) {
 		
-		session2db();
+		update();
 		delSession(event.getPlayer().getUniqueId().toString());
 	}
 	

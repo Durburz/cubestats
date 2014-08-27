@@ -22,6 +22,7 @@ public class cubestats extends JavaPlugin implements Listener {
 	private MySQL sql;
 	private BukkitTask writer;
 	private ArrayList<Object[]> sessions = new ArrayList<Object[]>();
+	private boolean error = false;
 
 	
 	public void onEnable() {
@@ -41,23 +42,29 @@ public class cubestats extends JavaPlugin implements Listener {
     			try {
 					sql.insert("CREATE TABLE session (sessid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), start INT, end INT);");
 				} catch (SQLException e) {
+					error = true;
 					this.getLogger().severe("cubestats couldn't create table! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}
-			writer = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-			    public void run() {
-			    	update();
-			   }},0,this.getConfig().getInt("interval"));
+			if (!error) {
+				writer = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+				    public void run() {
+				    	update();
+				   }},0,this.getConfig().getInt("interval")*20);
+			}
 		}
 		else {
+			error = true;
 			this.getLogger().severe("cubestats got no db connection... will not work");
 		}
 		
-		this.saveDefaultConfig();
-		getServer().getPluginManager().registerEvents(this, this);
-		addSession(Bukkit.getServerName());
-		this.getLogger().info("cubestats is now tracking!");
+		if (!error) {
+			this.saveDefaultConfig();
+			getServer().getPluginManager().registerEvents(this, this);
+			addSession(Bukkit.getServerName());
+			this.getLogger().info("cubestats is now tracking!");
+		}
 	}
 	 
 	public void onDisable() {

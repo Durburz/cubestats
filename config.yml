@@ -5,4 +5,4 @@ dbpw: password
 dbport: 3306
 db: cubestats
 dbhost: localhost
-interval: 12000
+interval: 300

@@ -6,11 +6,11 @@
 
 <?php
 $host = "localhost";
-$user = "root";
-$password = "Z0mbi3";
+$user = "user";
+$password = "password";
 $database = "cubestats";
 
-$servername = "Chiropterra";
+$servername = "ServerName";
 $interval = 60;
 
 $connection = mysql_connect($host,$user,$password) 

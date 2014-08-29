@@ -17,24 +17,38 @@ class Session {
 	private $start;
 	private $end;
 	
-	function getStart() {
+	public function getStart() {
 		return self::$start;
 	}
 	
-	function getEnd() {
+	public function getEnd() {
 		return self::$end;
 	}
 	
-	function getDifference() {
-		return self::$end - slf::$start;
+	public function getDifference() {
+		return self::$end - self::$start;
 	}
 }
 
 class SessionOwner {
 	private $uuid;
 	private $name;
-	private $player;
-	private
+	private $sessions[];
+	
+	public function __construct($uuidIn,$nameIn) {
+		self::$uuid = $uuidIn;
+		self::$name = $nameIn;
+	}
+	
+	public function addSession($in) {
+		sessions[] = $in;
+	}
+	
+	public function playTime() {
+		$time = 0;
+		foreach 
+	}
+
 }
 
 

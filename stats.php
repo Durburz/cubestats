@@ -13,6 +13,31 @@ $database = "cubestats";
 $servername = "ServerName";
 $interval = 60;
 
+class Session {
+	private $start;
+	private $end;
+	
+	function getStart() {
+		return self::$start;
+	}
+	
+	function getEnd() {
+		return self::$end;
+	}
+	
+	function getDifference() {
+		return self::$end - slf::$start;
+	}
+}
+
+class SessionOwner {
+	private $uuid;
+	private $name;
+	private $player;
+	private
+}
+
+
 $connection = mysql_connect($host,$user,$password) 
 	or die("Could not connect: ".mysql_error());
 

@@ -43,7 +43,16 @@ public class cubestats extends JavaPlugin implements Listener {
 					sql.insert("CREATE TABLE session (sessid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), start INT, end INT);");
 				} catch (SQLException e) {
 					error = true;
-					this.getLogger().severe("cubestats couldn't create table! will not work");
+					this.getLogger().severe("cubestats couldn't create table 'session'! will not work");
+					this.getLogger().severe(e.toString());
+				}
+    		}
+			if(sql.isTable("name") == false){
+    			try {
+					sql.insert("CREATE TABLE name (UUID VARCHAR(36) UNIQUE PRIMARY KEY, name VARCHAR(36));");
+				} catch (SQLException e) {
+					error = true;
+					this.getLogger().severe("cubestats couldn't create table 'name'! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}
@@ -79,6 +88,12 @@ public class cubestats extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLogin(PlayerLoginEvent event)  {
 		
+		try {
+			sql.insert("IF NOT EXISTS (SELECT * FROM name WHERE UUID='"+ event.getPlayer().getUniqueId().toString() +"') "
+					+ "INSERT INTO name (UUID, name) VALUES ("+ event.getPlayer().getUniqueId().toString() +", "+ event.getPlayer().getPlayerListName() +") END IF;");
+		} catch (SQLException e) {
+			this.getLogger().severe(e.getMessage());
+		}
 		addSession(event.getPlayer().getUniqueId().toString());
 	}
 	

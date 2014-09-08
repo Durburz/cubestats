@@ -8,9 +8,12 @@ import java.util.logging.Logger;
 import lib.PatPeter.SQLibrary.MySQL;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -104,6 +107,26 @@ public class cubestats extends JavaPlugin implements Listener {
 		delSession(event.getPlayer().getUniqueId().toString());
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onFish(PlayerFishEvent event) {
+		
+		if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+			
+			Item loot = null;
+			
+			try {
+				loot = (Item)event.getCaught();
+			} catch (Exception e) {
+				//TODO catch exception
+			}
+			
+			if (loot != null) {
+				//TODO log fish into db
+				this.getLogger().info("Logging Fish!");
+			}
+		}
+	}
+	
 	public void writeToDB() {
 		
 		session2db();
@@ -180,5 +203,4 @@ public class cubestats extends JavaPlugin implements Listener {
 			}
 		}
 	}
-	
 }

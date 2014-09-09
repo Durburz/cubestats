@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import lib.PatPeter.SQLibrary.MySQL;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -56,6 +55,15 @@ public class cubestats extends JavaPlugin implements Listener {
 				} catch (SQLException e) {
 					error = true;
 					this.getLogger().severe("cubestats couldn't create table 'name'! will not work");
+					this.getLogger().severe(e.toString());
+				}
+    		}
+			if(sql.isTable("fish") == false){
+    			try {
+					sql.insert("CREATE TABLE name (fishid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), loot VARCHAR(36), time INT);");
+				} catch (SQLException e) {
+					error = true;
+					this.getLogger().severe("cubestats couldn't create table 'fish'! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}

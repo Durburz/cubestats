@@ -43,33 +43,42 @@ public class cubestats extends JavaPlugin implements Listener {
 			this.getLogger().info("cubestats got db connection...");
 			if(sql.isTable("session") == false){
     			try {
-					sql.insert("CREATE TABLE session (sessid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), start INT, end INT);");
+					sql.insert("CREATE TABLE session (sessid BIGINT "
+							+ "PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), "
+							+ "start INT, end INT);");
 				} catch (SQLException e) {
 					error = true;
-					this.getLogger().severe("cubestats couldn't create table 'session'! will not work");
+					this.getLogger().severe("cubestats couldn't create table "
+							+ "'session'! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}
 			if(sql.isTable("name") == false){
     			try {
-					sql.insert("CREATE TABLE name (UUID VARCHAR(36) UNIQUE PRIMARY KEY, name VARCHAR(36));");
+					sql.insert("CREATE TABLE name (UUID VARCHAR(36) UNIQUE "
+							+ "PRIMARY KEY, name VARCHAR(36));");
 				} catch (SQLException e) {
 					error = true;
-					this.getLogger().severe("cubestats couldn't create table 'name'! will not work");
+					this.getLogger().severe("cubestats couldn't create table "
+							+ "'name'! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}
 			if(sql.isTable("fish") == false){
     			try {
-					sql.insert("CREATE TABLE name (fishid BIGINT PRIMARY KEY AUTO_INCREMENT, UUID VARCHAR(36), loot VARCHAR(36), time INT);");
+					sql.insert("CREATE TABLE name (fishid BIGINT PRIMARY KEY "
+							+ "AUTO_INCREMENT, UUID VARCHAR(36), "
+							+ "loot VARCHAR(36), time INT);");
 				} catch (SQLException e) {
 					error = true;
-					this.getLogger().severe("cubestats couldn't create table 'fish'! will not work");
+					this.getLogger().severe("cubestats couldn't create table "
+							+ "'fish'! will not work");
 					this.getLogger().severe(e.toString());
 				}
     		}
 			if (!error) {
-				writer = Bukkit.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+				writer = Bukkit.getServer().getScheduler()
+						.runTaskTimerAsynchronously(this, new Runnable() {
 				    public void run() {
 				    	update();
 				   }},0,this.getConfig().getInt("interval")*20);
@@ -77,7 +86,8 @@ public class cubestats extends JavaPlugin implements Listener {
 		}
 		else {
 			error = true;
-			this.getLogger().severe("cubestats got no db connection... will not work");
+			this.getLogger().severe("cubestats got no db connection... "
+					+ "will not work");
 		}
 		
 		if (!error) {
@@ -101,8 +111,11 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void onLogin(PlayerLoginEvent event)  {
 		
 		try {
-			sql.insert("IF NOT EXISTS (SELECT * FROM name WHERE UUID='"+ event.getPlayer().getUniqueId().toString() +"') "
-					+ "INSERT INTO name (UUID, name) VALUES ("+ event.getPlayer().getUniqueId().toString() +", "+ event.getPlayer().getPlayerListName() +") END IF;");
+			sql.insert("IF NOT EXISTS (SELECT * FROM name WHERE UUID='"
+					+ event.getPlayer().getUniqueId().toString() +"') "
+					+ "INSERT INTO name (UUID, name) VALUES ("
+					+ event.getPlayer().getUniqueId().toString() +", "
+					+ event.getPlayer().getPlayerListName() +") END IF;");
 		} catch (SQLException e) {
 			this.getLogger().severe(e.getMessage());
 		}
@@ -195,20 +208,25 @@ public class cubestats extends JavaPlugin implements Listener {
 			
 			if (sessions.get(i)[3] != null) {
 				try {
-					sql.insert("UPDATE session SET end='"+sessions.get(i)[2]+"' WHERE sessid='"+sessions.get(i)[3]+"';");
+					sql.insert("UPDATE session SET end='"+sessions.get(i)[2]
+							+ "' WHERE sessid='"+sessions.get(i)[3]+"';");
 				} catch (SQLException e) {
 					this.getLogger().severe(e.getMessage());
 				}
 			}
 			else {
 				try {
-					sql.insert("INSERT INTO session (UUID,start,end) VALUES ('"+sessions.get(i)[0]+"','"+sessions.get(i)[1]+"','"+sessions.get(i)[2]+"');");
+					sql.insert("INSERT INTO session (UUID,start,end) VALUES ('"
+							+ sessions.get(i)[0]+"','"+sessions.get(i)[1]+"','"
+							+ sessions.get(i)[2]+"');");
 				} catch (SQLException e) {
 					this.getLogger().severe(e.getMessage());
 				}
 				try {
 					ResultSet re;
-					re = sql.query("SELECT sessid FROM session WHERE UUID='"+sessions.get(i)[0]+"' AND start='"+sessions.get(i)[1]+"';");
+					re = sql.query("SELECT sessid FROM session WHERE UUID='"
+							+ sessions.get(i)[0]+"' AND start='"
+							+ sessions.get(i)[1]+"';");
 					while(re.next()) {
 						sessions.get(i)[3] = re.getInt("sessid");
 					}

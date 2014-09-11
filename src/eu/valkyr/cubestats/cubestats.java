@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -110,6 +111,13 @@ public class cubestats extends JavaPlugin implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent event) {
+		
+		update();
+		delSession(event.getPlayer().getUniqueId().toString());
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onKick(PlayerKickEvent event) {
 		
 		update();
 		delSession(event.getPlayer().getUniqueId().toString());

@@ -66,9 +66,9 @@ public class cubestats extends JavaPlugin implements Listener {
     		}
 			if(sql.isTable("fish") == false){
     			try {
-					sql.insert("CREATE TABLE name (fishid BIGINT PRIMARY KEY "
+					sql.insert("CREATE TABLE fish (fishid BIGINT PRIMARY KEY "
 							+ "AUTO_INCREMENT, UUID VARCHAR(36), "
-							+ "loot VARCHAR(36), time INT);");
+							+ "loot VARCHAR(36), count INT);");
 				} catch (SQLException e) {
 					error = true;
 					this.getLogger().severe("cubestats couldn't create table "
@@ -146,11 +146,11 @@ public class cubestats extends JavaPlugin implements Listener {
 			try {
 				loot = (Item)event.getCaught();
 			} catch (Exception e) {
-				//TODO catch exception
+				this.getLogger().severe(e.getMessage());
 			}
 			
 			if (loot != null) {
-				//TODO log fish into db
+				fish2db(event.getPlayer().getUniqueId().toString(), loot);
 				this.getLogger().info("Logging Fish!");
 			}
 		}
@@ -235,6 +235,43 @@ public class cubestats extends JavaPlugin implements Listener {
 					this.getLogger().severe(e.getMessage());
 				}
 			}
+		}
+	}
+	
+	public void fish2db(String uuid, Item loot) {
+		int count = 0;
+		
+		try {
+			ResultSet re;
+			re = sql.query("SELECT count FROM fish WHERE UUID='"
+					+ uuid+"' AND loot='"
+					+ loot.toString()+"';");
+			while(re.next()) {
+				count = re.getInt("count");
+			}
+			re.close();
+		} catch (SQLException e) {
+			this.getLogger().severe(e.getMessage());
+		}
+		
+		
+		if (count != 0) {
+			try {
+				sql.insert("UPDATE fish SET count='"+(count + 1)
+						+ "' WHERE UUID='"+uuid
+						+ "' AND loot=''"+loot.toString()+";");
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
+			}
+		}
+		else {
+			try {
+				sql.insert("INSERT INTO fish (UUID,loot,count) VALUES ('"
+						+ uuid+"','"+loot.toString()+"','1');");
+			} catch (SQLException e) {
+				this.getLogger().severe(e.getMessage());
+			}
+			
 		}
 	}
 }

@@ -111,11 +111,10 @@ public class cubestats extends JavaPlugin implements Listener {
 	public void onLogin(PlayerLoginEvent event)  {
 		
 		try {
-			sql.insert("IF NOT EXISTS (SELECT * FROM name WHERE UUID='"
-					+ event.getPlayer().getUniqueId().toString() +"') "
-					+ "INSERT INTO name (UUID, name) VALUES ("
-					+ event.getPlayer().getUniqueId().toString() +", "
-					+ event.getPlayer().getPlayerListName() +") END IF;");
+			sql.insert("INSERT INTO name (uuid, name) VALUES('"
+					+ event.getPlayer().getUniqueId().toString() +"', '"
+					+ event.getPlayer().getPlayerListName() +"') ON DUPLICATE KEY UPDATE name='"
+					+ event.getPlayer().getPlayerListName() +"';");
 		} catch (SQLException e) {
 			this.getLogger().severe(e.getMessage());
 		}
